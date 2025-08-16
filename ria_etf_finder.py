@@ -1,22 +1,37 @@
 import streamlit as st
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
-# Streamlit page config (set to wide layout and dark theme)
-st.set_page_config(layout="wide", initial_sidebar_state="auto", page_title="RIA ETF Finder", page_icon=":search:", theme="dark")
+# Dropbox direct download links (with &dl=1)
+INFOTABLE_URL = "https://www.dropbox.com/scl/fi/4hlccnqll0qylorf7ve14/INFOTABLE.tsv?rlkey=f63x2bu7r1k378irhnxdehs0x&st=4fir2jwm&dl=1"
+COVERPAGE_URL = "https://www.dropbox.com/scl/fi/gxess41wug02mrg246339/COVERPAGE.tsv?rlkey=g0tkbfnw3o1pdc1l44nhti28j&st=521q4bmh&dl=1"
 
 # Streamlit interface
+st.set_page_config(layout="wide", initial_sidebar_state="auto", page_title="RIA ETF Finder", page_icon=":search:")
 st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
 
 if st.button("Find RIAs"):
-    cusip = ticker_to_cusip.get(ticker)
-    if not cusip:
-        st.write(f"No CUSIP found for {ticker}.")
+    # Dynamic CUSIP lookup from portfolioslab.com
+    try:
+        url = f"https://portfolioslab.com/symbol/{ticker}"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        cusip_label = soup.find(string=lambda text: text and "CUSIP" in text)
+        cusip = cusip_label.find_parent().find_next_sibling("div").text.strip() if cusip_label else None
+        if not cusip:
+            st.write(f"No CUSIP found for {ticker} on portfolioslab.com.")
+            st.stop()
+    except Exception as e:
+        st.write(f"Error fetching CUSIP: {e}")
         st.stop()
 
     try:
-        infotable = pd.read_csv("https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781", delimiter="\t", dtype=str)
-        coverpage = pd.read_csv("https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe", delimiter="\t", dtype=str)
+        infotable = pd.read_csv(INFOTABLE_URL, delimiter="\t", dtype=str)
+        coverpage = pd.read_csv(COVERPAGE_URL, delimiter="\t", dtype=str)
+        infotable.columns = infotable.columns.str.strip()
+        coverpage.columns = coverpage.columns.str.strip()
     except Exception as e:
         st.write(f"Error loading files: {e}")
         st.stop()
