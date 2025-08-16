@@ -1,35 +1,30 @@
 import streamlit as st
 import pandas as pd
 
-# Direct download URLs from Google Drive (make files public)
-CUSIPS_URL = "https://drive.google.com/uc?export=download&id=1irqCNmaLo6u5OplgpaMt_30W_CsZP-dq"
-INFOTABLE_URL = "https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781"
-COVERPAGE_URL = "https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe"
-
 # Streamlit interface
 st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
 
 if st.button("Find RIAs"):
-    # Load CUSIPS from URL for CUSIP lookup
-    try:
-        etf_list = pd.read_csv(CUSIPS_URL, delimiter="\t", dtype=str)
-        etf_list.columns = etf_list.columns.str.strip()
-        cusip_row = etf_list[etf_list["Symbol"].str.strip().str.upper() == ticker]
-        cusip = cusip_row["CUSP"].iloc[0].strip() if not cusip_row.empty else None
-        if not cusip:
-            st.write(f"No CUSIP found for {ticker} in CUSIPS.")
-            st.stop()
-    except Exception as e:
-        st.write(f"Error loading CUSIPS: {e}")
+    # Dynamic CUSIP lookup (using a small dictionary for now; expand as needed)
+    ticker_to_cusip = {
+        "SPY": "78462F103",
+        "CALF": "69374H857",
+        # Add more from CUSIPS.txt if needed
+    }
+    cusip = ticker_to_cusip.get(ticker)
+    if not cusip:
+        st.write(f"No CUSIP found for {ticker}.")
         st.stop()
 
-    # Load INFOTABLE and COVERPAGE from URLs
     try:
-        infotable = pd.read_csv(INFOTABLE_URL, delimiter="\t", dtype=str)
-        coverpage = pd.read_csv(COVERPAGE_URL, delimiter="\t", dtype=str)
+        # Direct download links from Google Drive (make files public and use this format)
+        infotable = pd.read_csv("https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781", delimiter="\t", dtype=str)
+        coverpage = pd.read_csv("https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe", delimiter="\t", dtype=str)
+        # Strip spaces from column names
         infotable.columns = infotable.columns.str.strip()
         coverpage.columns = coverpage.columns.str.strip()
+        st.write("INFOTABLE columns:", infotable.columns.tolist())
     except Exception as e:
         st.write(f"Error loading files: {e}")
         st.stop()
