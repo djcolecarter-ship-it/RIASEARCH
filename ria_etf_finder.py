@@ -38,9 +38,9 @@ if st.button("Find RIAs"):
     cusip_data = infotable[infotable["CUSIP"].str.strip() == cusip]
     if not cusip_data.empty:
         for index, row in cusip_data.iterrows():
-            accession_number = row["ACCESSION_NUMBER"].strip()
+            accession_number = row["ACCESSION_NUMBER"]
             value = row["VALUE"]
-            firm_data = coverpage[coverpage["ACCESSION_NUMBER"].str.strip() == accession_number]
+            firm_data = coverpage[coverpage["ACCESSION_NUMBER"] == accession_number]
             if not firm_data.empty:
                 firm_name = firm_data["FILINGMANAGER_NAME"].iloc[0]
                 street = f"{firm_data['FILINGMANAGER_STREET1'].iloc[0]} {firm_data['FILINGMANAGER_STREET2'].iloc[0] or ''}"
