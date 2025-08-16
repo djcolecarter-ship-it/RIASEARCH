@@ -1,32 +1,34 @@
 import streamlit as st
 import pandas as pd
 
+# Manual ticker to CUSIP mapping
+ticker_to_cusip = {
+    "SPY": "78462F103",
+    "CALF": "69374H857",
+}
+
 # Streamlit interface
 st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
 
 if st.button("Find RIAs"):
-    # Dynamic CUSIP lookup using a dictionary (expand as needed)
-    ticker_to_cusip = {
-        "SPY": "78462F103",
-        "CALF": "69374H857",
-        # Add more from CUSIPS.txt if needed
-    }
     cusip = ticker_to_cusip.get(ticker)
     if not cusip:
-        st.write(f"No CUSIP found for {ticker}.")
+        st.write(f"No CUSIP mapping found for {ticker}. Please add it to ticker_to_cusip dictionary.")
         st.stop()
 
     try:
-        # Direct download links from Google Drive (publicly accessible)
-        infotable_url = "https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781"
-        coverpage_url = "https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe"
-        infotable = pd.read_csv(infotable_url, delimiter="\t", dtype=str, on_bad_lines='skip')
-        coverpage = pd.read_csv(coverpage_url, delimiter="\t", dtype=str, on_bad_lines='skip')
-        st.write("Files loaded successfully.")
+        infotable = pd.read_csv(r"C:\Users\coleh\Documents\INFOTABLE.tsv", delimiter="\t", dtype=str)
+        coverpage = pd.read_csv(r"C:\Users\coleh\Documents\COVERPAGE.tsv", delimiter="\t", dtype=str)
+        # Debug column names
+        st.write("INFOTABLE columns:", infotable.columns.tolist())
     except Exception as e:
-        st.write(f"Error loading files: {e}. Ensure Google Drive links are public and correct.")
+        st.write(f"Error loading files: {e}")
         st.stop()
+
+    # Strip spaces from column names
+    infotable.columns = infotable.columns.str.strip()
+    coverpage.columns = coverpage.columns.str.strip()
 
     firms = []
     cusip_data = infotable[infotable["CUSIP"].str.strip() == cusip]
