@@ -6,7 +6,7 @@ st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
 
 if st.button("Find RIAs"):
-    # Dynamic CUSIP lookup (using a small dictionary for now; expand as needed)
+    # Dynamic CUSIP lookup using a dictionary (expand as needed)
     ticker_to_cusip = {
         "SPY": "78462F103",
         "CALF": "69374H857",
@@ -18,11 +18,14 @@ if st.button("Find RIAs"):
         st.stop()
 
     try:
-        # Direct download links from Google Drive (make files public and use this format)
-        infotable = pd.read_csv("https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781", delimiter="\t", dtype=str)
-        coverpage = pd.read_csv("https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe", delimiter="\t", dtype=str)
+        # Direct download links from Google Drive (publicly accessible)
+        infotable_url = "https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781"
+        coverpage_url = "https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe"
+        infotable = pd.read_csv(infotable_url, delimiter="\t", dtype=str, on_bad_lines='skip')
+        coverpage = pd.read_csv(coverpage_url, delimiter="\t", dtype=str, on_bad_lines='skip')
+        st.write("Files loaded successfully.")
     except Exception as e:
-        st.write(f"Error loading files: {e}")
+        st.write(f"Error loading files: {e}. Ensure Google Drive links are public and correct.")
         st.stop()
 
     firms = []
