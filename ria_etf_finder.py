@@ -24,10 +24,12 @@ if st.button("Find RIAs"):
         # Strip spaces from column names
         infotable.columns = infotable.columns.str.strip()
         coverpage.columns = coverpage.columns.str.strip()
-        st.write("INFOTABLE columns:", infotable.columns.tolist())
     except Exception as e:
         st.write(f"Error loading files: {e}")
         st.stop()
+
+    # Debug column names
+    st.write("INFOTABLE columns:", infotable.columns.tolist())
 
     firms = []
     cusip_data = infotable[infotable["CUSIP"].str.strip() == cusip]
