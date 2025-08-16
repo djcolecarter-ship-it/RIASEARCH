@@ -1,35 +1,26 @@
 import streamlit as st
 import pandas as pd
 
-# Direct download URLs from Google Drive (make files public and use this format)
-CUSIPS_URL = "https://drive.google.com/uc?export=download&id=1irqCNmaLo6u5OplgpaMt_30W_CsZP-dq"
-INFOTABLE_URL = "https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781"
-COVERPAGE_URL = "https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe"
-
 # Streamlit interface
 st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
 
 if st.button("Find RIAs"):
-    # Load CUSIPS from URL for CUSIP lookup
-    try:
-        etf_list = pd.read_csv(CUSIPS_URL, delimiter="\t", dtype=str)
-        etf_list.columns = etf_list.columns.str.strip()
-        cusip_row = etf_list[etf_list["Symbol"].str.strip().str.upper() == ticker]
-        cusip = cusip_row["CUSP"].iloc[0].strip() if not cusip_row.empty else None
-        if not cusip:
-            st.write(f"No CUSIP found for {ticker} in CUSIPS.")
-            st.stop()
-    except Exception as e:
-        st.write(f"Error loading CUSIPS: {e}")
+    # Dynamic CUSIP lookup (using a small dictionary for now; expand as needed)
+    ticker_to_cusip = {
+        "SPY": "78462F103",
+        "CALF": "69374H857",
+        # Add more from CUSIPS.txt if needed
+    }
+    cusip = ticker_to_cusip.get(ticker)
+    if not cusip:
+        st.write(f"No CUSIP found for {ticker}.")
         st.stop()
 
-    # Load INFOTABLE and COVERPAGE from URLs
     try:
-        infotable = pd.read_csv(INFOTABLE_URL, delimiter="\t", dtype=str)
-        coverpage = pd.read_csv(COVERPAGE_URL, delimiter="\t", dtype=str)
-        infotable.columns = infotable.columns.str.strip()
-        coverpage.columns = coverpage.columns.str.strip()
+        # Direct download links from Dropbox (with &dl=1 for direct download)
+        infotable = pd.read_csv("https://www.dropbox.com/scl/fi/4hlccnqll0qylorf7ve14/INFOTABLE.tsv?rlkey=f63x2bu7r1k378irhnxdehs0x&st=4fir2jwm&dl=1", delimiter="\t", dtype=str)
+        coverpage = pd.read_csv("https://www.dropbox.com/scl/fi/gxess41wug02mrg246339/COVERPAGE.tsv?rlkey=g0tkbfnw3o1pdc1l44nhti28j&st=521q4bmh&dl=1", delimiter="\t", dtype=str)
     except Exception as e:
         st.write(f"Error loading files: {e}")
         st.stop()
