@@ -18,12 +18,19 @@ if st.button("Find RIAs"):
         st.stop()
 
     try:
-        # Direct download links from Google Drive (make files public)
+        # Direct download links from Google Drive (make files public and use this format)
         infotable = pd.read_csv("https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781", delimiter="\t", dtype=str)
         coverpage = pd.read_csv("https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe", delimiter="\t", dtype=str)
     except Exception as e:
         st.write(f"Error loading files: {e}")
         st.stop()
+
+    # Strip spaces from column names
+    infotable.columns = infotable.columns.str.strip()
+    coverpage.columns = coverpage.columns.str.strip()
+
+    # Debug column names
+    st.write("INFOTABLE columns:", infotable.columns.tolist())
 
     firms = []
     cusip_data = infotable[infotable["CUSIP"].str.strip() == cusip]
