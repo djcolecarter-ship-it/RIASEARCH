@@ -1,37 +1,22 @@
 import streamlit as st
 import pandas as pd
 
-# Dropbox direct download link for CUSIPS (with &dl=1)
-CUSIPS_URL = "https://www.dropbox.com/scl/fi/fw0xkwlszl9fzk4z5tktj/CUSIPS.txt?rlkey=zn4fy9snn79swj3pnz6qk211s&st=pfgrlojo&dl=1"
-
-# Dropbox direct download links for INFOTABLE and COVERPAGE (from previous)
-INFOTABLE_URL = "https://www.dropbox.com/scl/fi/4hlccnqll0qylorf7ve14/INFOTABLE.tsv?rlkey=f63x2bu7r1k378irhnxdehs0x&st=4fir2jwm&dl=1"
-COVERPAGE_URL = "https://www.dropbox.com/scl/fi/gxess41wug02mrg246339/COVERPAGE.tsv?rlkey=g0tkbfnw3o1pdc1l44nhti28j&st=521q4bmh&dl=1"
+# Streamlit page config (set to wide layout and dark theme)
+st.set_page_config(layout="wide", initial_sidebar_state="auto", page_title="RIA ETF Finder", page_icon=":search:", theme="dark")
 
 # Streamlit interface
 st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
 
 if st.button("Find RIAs"):
-    # Load CUSIPS from Dropbox for CUSIP lookup
-    try:
-        etf_list = pd.read_csv(CUSIPS_URL, delimiter="\t", dtype=str)
-        etf_list.columns = etf_list.columns.str.strip()
-        cusip_row = etf_list[etf_list["Symbol"].str.strip().str.upper() == ticker]
-        cusip = cusip_row["CUSP"].iloc[0].strip() if not cusip_row.empty else None
-        if not cusip:
-            st.write(f"No CUSIP found for {ticker} in CUSIPS.")
-            st.stop()
-    except Exception as e:
-        st.write(f"Error loading CUSIPS: {e}")
+    cusip = ticker_to_cusip.get(ticker)
+    if not cusip:
+        st.write(f"No CUSIP found for {ticker}.")
         st.stop()
 
-    # Load INFOTABLE and COVERPAGE from Dropbox
     try:
-        infotable = pd.read_csv(INFOTABLE_URL, delimiter="\t", dtype=str)
-        coverpage = pd.read_csv(COVERPAGE_URL, delimiter="\t", dtype=str)
-        infotable.columns = infotable.columns.str.strip()
-        coverpage.columns = coverpage.columns.str.strip()
+        infotable = pd.read_csv("https://drive.google.com/uc?export=download&id=1MAa_5cMDjlzkUzVzK4EpirWRF9xuu781", delimiter="\t", dtype=str)
+        coverpage = pd.read_csv("https://drive.google.com/uc?export=download&id=1X4kwQTFDCrwovOoMb851k-wIIwtbjFEe", delimiter="\t", dtype=str)
     except Exception as e:
         st.write(f"Error loading files: {e}")
         st.stop()
