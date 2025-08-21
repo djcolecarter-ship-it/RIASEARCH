@@ -8,6 +8,9 @@ CUSIPS_URL = "https://www.dropbox.com/scl/fi/fw0xkwlszl9fzk4z5tktj/CUSIPS.txt?rl
 INFOTABLE_URL = "https://www.dropbox.com/scl/fi/4hlccnqll0qylorf7ve14/INFOTABLE.tsv?rlkey=f63x2bu7r1k378irhnxdehs0x&st=4fir2jwm&dl=1"
 COVERPAGE_URL = "https://www.dropbox.com/scl/fi/gxess41wug02mrg246339/COVERPAGE.tsv?rlkey=g0tkbfnw3o1pdc1l44nhti28j&st=521q4bmh&dl=1"
 
+# Set wide mode
+st.set_page_config(layout="wide")
+
 # Streamlit interface
 st.title("RIA ETF Finder")
 ticker = st.text_input("Enter ETF Ticker (e.g., SPY):").upper()
