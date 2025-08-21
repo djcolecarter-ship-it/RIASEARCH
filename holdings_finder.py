@@ -28,4 +28,29 @@ if st.button("Find Holdings"):
     if not ria_data.empty:
         for _, firm_row in ria_data.iterrows():
             accession_number = firm_row["ACCESSION_NUMBER"]
-            ria_name
+            ria_name = firm_row["FILINGMANAGER_NAME"]
+            ria_data_chunk = infotable[infotable["ACCESSION_NUMBER"] == accession_number]
+            if not ria_data_chunk.empty:
+                for index, row in ria_data_chunk.iterrows():
+                    product_name = row["NAMEOFISSUER"]
+                    cusip = row["CUSIP"]
+                    security_info = row["TITLEOFCLASS"]
+                    value = row["VALUE"]
+                    formatted_value = f"${float(value):,}" if value else "N/A"
+                    holdings.append({
+                        "RIA Name": ria_name,
+                        "Holding Name": product_name,
+                        "CUSIP": cusip,
+                        "Security Info": security_info,
+                        "Dollar Amount": formatted_value
+                    })
+
+    results = pd.DataFrame(holdings)
+    if not results.empty:
+        # Sort by Dollar Amount descending by default
+        results["Dollar Amount (Numeric)"] = results["Dollar Amount"].str.replace(r"[$,]", "", regex=True).astype(float)
+        results = results.sort_values(by="Dollar Amount (Numeric)", ascending=False)
+        st.write(f"Holdings for CRD Number {crd_number}:")
+        st.dataframe(results[["RIA Name", "Holding Name", "CUSIP", "Security Info", "Dollar Amount"]])
+    else:
+        st.write(f"No holdings found for CRD Number {crd_number}.")
